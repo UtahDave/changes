@@ -33,3 +33,70 @@ using Salt.
 
     vagrant ssh master
     sudo salt \* test.ping
+
+
+You can see the difference between the output of a successful orchestration
+state and a failure with the following commands:
+
+
+.. code-block:: bash
+
+    sudo salt-run state.orch changes.succeed --out json
+    sudo salt-run state.orch changes.fail --out json 2> /dev/null
+
+
+
+You should see something like the following:
+
+
+.. code-block:: bash
+
+    sudo salt-run state.orch changes.succeed --out json
+    {
+        "outputter": "highstate",
+        "data": {
+            "saltmaster.local_master": {
+                "salt_|-Step01_|-Step01_|-state": {
+                    "comment": "States ran successfully. No changes made to minion1.",
+                    "name": "Step01",
+                    "start_time": "01:41:58.554370",
+                    "result": true,
+                    "duration": 1382.494,
+                    "__run_num__": 0,
+                    "__jid__": "20171109014158623388",
+                    "__sls__": "changes.succeed",
+                    "changes": {},
+                    "__id__": "Step01"
+                }
+            }
+        },
+        "retcode": 0
+    }
+
+
+And like this on failure:
+
+
+.. code-block:: bash
+
+    sudo salt-run state.orch changes.fail --out json 2> /dev/null
+    {
+        "outputter": "highstate",
+        "data": {
+            "saltmaster.local_master": {
+                "salt_|-Step01_|-Step01_|-state": {
+                    "comment": "Run failed on minions: minion1\nFailures:\n    {\n        \"minion1\": {\n            \"pkg_|-install_fake_package_|-asdfasdf_|-installed\": {\n                \"comment\": \"Problem encountered installing package(s). Additional info follows:\\n\\nerrors:\\n    - Running scope as unit run-r9c32e46083d64e3785334798d98071e9.scope.\\n      E: Unable to locate package asdfasdf\", \n                \"name\": \"asdfasdf\", \n                \"start_time\": \"01:41:40.142147\", \n                \"result\": false, \n                \"duration\": 4373.974, \n                \"__run_num__\": 0, \n                \"__sls__\": \"changes.pkg_fail\", \n                \"changes\": {}, \n                \"__id__\": \"install_fake_package\"\n            }\n        }\n    }\n",
+                    "name": "Step01",
+                    "start_time": "01:41:40.036106",
+                    "result": false,
+                    "duration": 5130.725,
+                    "__run_num__": 0,
+                    "__jid__": "20171109014140096711",
+                    "__sls__": "changes.fail",
+                    "changes": {},
+                    "__id__": "Step01"
+                }
+            }
+        },
+        "retcode": 1
+    }
