@@ -51,21 +51,44 @@ You should see something like the following:
 
 .. code-block:: bash
 
+    sudo salt minion1 pkg.remove nano
     sudo salt-run state.orch changes.succeed --out json
     {
         "outputter": "highstate",
         "data": {
             "saltmaster.local_master": {
                 "salt_|-Step01_|-Step01_|-state": {
-                    "comment": "States ran successfully. No changes made to minion1.",
+                    "comment": "States ran successfully. Updating minion1.",
                     "name": "Step01",
-                    "start_time": "01:41:58.554370",
+                    "start_time": "01:47:59.026329",
                     "result": true,
-                    "duration": 1382.494,
+                    "duration": 8006.557,
                     "__run_num__": 0,
-                    "__jid__": "20171109014158623388",
+                    "__jid__": "20171109014759087105",
                     "__sls__": "changes.succeed",
-                    "changes": {},
+                    "changes": {
+                        "ret": {
+                            "minion1": {
+                                "pkg_|-install_good_package_|-nano_|-installed": {
+                                    "comment": "The following packages were installed/updated: nano",
+                                    "name": "nano",
+                                    "start_time": "01:47:59.077133",
+                                    "result": true,
+                                    "duration": 7202.901,
+                                    "__run_num__": 0,
+                                    "__sls__": "changes.pkg_succeed",
+                                    "changes": {
+                                        "nano": {
+                                            "new": "2.5.3-2ubuntu2",
+                                            "old": ""
+                                        }
+                                    },
+                                    "__id__": "install_good_package"
+                                }
+                            }
+                        },
+                        "out": "highstate"
+                    },
                     "__id__": "Step01"
                 }
             }
@@ -100,3 +123,10 @@ And like this on failure:
         },
         "retcode": 1
     }
+
+
+You can see from the above results that when there's a success the `changes`
+field is populated with a dictionary cleanly describing the changes that
+happened. But when there's a failure the info about the failure is added to the
+`comments` field as a string with spaces and hard returns. This makes it
+difficult to parse reliably when used programatically.
